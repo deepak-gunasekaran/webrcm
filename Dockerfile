@@ -27,8 +27,8 @@ RUN npm install -g pnpm
 COPY --from=builder /app/dist ./dist
 COPY package.json pnpm-lock.yaml ./
 
-# Install production dependencies only
-RUN pnpm install --frozen-lockfile --prod
+# Install all dependencies (including dev deps needed for vite preview)
+RUN pnpm install --frozen-lockfile
 
 # Expose port
 EXPOSE 3000
