@@ -15,23 +15,17 @@ COPY . .
 # Build the application
 RUN pnpm run build
 
-# Stage 2: Serve the application
-FROM node:20-alpine
+# Stage 2: Serve the application with nginx
+FROM nginx:alpine
 
-WORKDIR /app
+# Copy built files from builder
+COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Install pnpm globally for running preview
-RUN npm install -g pnpm
-
-# Copy only necessary files from builder
-COPY --from=builder /app/dist ./dist
-COPY package.json pnpm-lock.yaml ./
-
-# Install all dependencies (including dev deps needed for vite preview)
-RUN pnpm install --frozen-lockfile
+# Copy nginx config
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Expose port
-EXPOSE 3000
+EXPOSE 80
 
-# Start the application using vite preview
-CMD ["pnpm", "run", "preview"]
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]
